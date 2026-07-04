@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>渔者与鱼 - 开始</title>
+    <link rel="stylesheet" href="css/start.css">
+</head>
+
+<body>
+
+    <!-- 左上角标题图片占位 -->
+    <div class="title-placeholder" id="titlePlaceholder">
+        <!-- 您可以在此直接插入 <img> 标签，例如： -->
+        <!-- <img src="images/title_logo.png" alt="游戏标题" style="max-width:90%; max-height:90%;"> -->
+        标题图片<br>（预留）
+    </div>
+
+    <!-- 左下角开始按钮 -->
+    <button class="start-btn" id="startBtn">🎣 开始游戏</button>
+
+    <!-- 视频容器 -->
+    <div class="video-wrapper" id="videoWrapper">
+        <video id="introVideo" preload="auto" muted poster="images/bg_ocean.jpg"> <!-- 添加海报图，加载时显示背景，杜绝黑屏 -->
+            <source src="images/cast_animation.mp4" type="video/mp4">
+            您的浏览器不支持 video 标签。
+        </video>
+    </div>
+
+    <!-- 跳过层（覆盖全屏，透明，用于捕获点击跳过） -->
+    <div class="skip-overlay" id="skipOverlay"></div>
+
+    <script src="js/start.js"></script>
+</body>
+
+</html>

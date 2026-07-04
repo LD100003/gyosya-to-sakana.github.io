@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>漁者と魚</title>
+    <link rel="stylesheet" href="css/main.css">
+
+</head>
+
+<body>
+    <!-- ===== 游戏容器 ===== -->
+    <div id="game-container">
+
+        <!-- ===== 游戏主界面 ===== -->
+        <!-- HUD -->
+        <div id="hud">
+            <div class="hud-item"><span class="hud-label">🎣 進捗</span><span id="progress-icons"></span></div>
+            <div class="hud-divider"></div>
+            <div class="hud-item"><span class="hud-label">📅</span><span class="hud-value" id="day-count">月曜日</span></div>
+            <div class="hud-divider"></div>
+            <div class="hud-item"><span class="hud-label">🏆 スコア</span><span class="hud-value" id="score-count">0</span></div>
+            <div class="hud-divider"></div>
+            <div class="hud-item"><span class="hud-label">⭐ コンボ</span><span id="combo-count">×0</span></div>
+            <!-- 计时器已删除 -->
+        </div>
+
+        <!-- 场景 -->
+        <div id="scene">
+            <div id="scene-bg"></div>
+            <div id="fish-display" class="hidden">
+                <img id="fish-sprite" src="images/fish_placeholder.jpg" alt="魚">
+            </div>
+            <div id="fish-bubble" class="hidden">
+                <div id="fish-name"></div>
+                <div id="fish-dialogue"></div>
+            </div>
+        </div>
+
+        <!-- 选项 -->
+        <div id="options-area" class="hidden">
+            <button class="option-btn" data-index="0"><span class="option-letter">A</span><span class="option-text"></span></button>
+            <button class="option-btn" data-index="1"><span class="option-letter">B</span><span class="option-text"></span></button>
+            <button class="option-btn" data-index="2"><span class="option-letter">C</span><span class="option-text"></span></button>
+            <button class="option-btn" data-index="3"><span class="option-letter">D</span><span class="option-text"></span></button>
+        </div>
+
+        <!-- 玩家 -->
+        <div id="player-area">
+            <div id="player-dialogue"></div>
+            <button id="btn-next-catch">🎣 次の一投</button>
+        </div>
+
+        <!-- 模态框 -->
+        <div id="modal-overlay" class="modal-overlay hidden">
+            <div class="modal-box" id="modal-box">
+                <div class="modal-icon" id="modal-icon">📖</div>
+                <div class="modal-title" id="modal-title">タイトル</div>
+                <div id="modal-scroll-wrapper">
+                    <div class="modal-sub" id="modal-sub">本文</div>
+                </div>
+                <div id="modal-actions">
+                    <button class="modal-btn" id="modal-btn-primary">確認</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================================================================
+        渔者之家（主页）
+        ================================================================ -->
+        <div id="home-container">
+            <div class="home-glass"></div>
+            <div class="home-content">
+                <div class="home-header">
+                    <div class="title">🏠 漁者の家</div>
+                    <div class="stats">
+                        スコア: <span id="home-score">0</span> &nbsp;|&nbsp; 合計: <span id="home-total">0</span>匹
+                    </div>
+                </div>
+
+                <div class="home-tabs">
+                    <button class="home-tab" data-tab="pokedex">📚 図鑑</button>
+                    <button class="home-tab active" data-tab="fishing">🎣 出漁する</button>
+                </div>
+
+                <div class="home-body">
+                    <div id="home-pokedex" class="home-view hidden">
+                        <div class="pokedex-grid" id="pokedex-grid"></div>
+                    </div>
+                    <div id="home-fishing" class="home-view">
+                        <div class="fishing-prep">
+                            <div class="info">
+                                <div><span class="label">📅 日付</span> <span class="value" id="home-weather-info">---</span></div>
+                                <div><span class="label">🎯 目標</span> <span class="value" id="home-target-info">---</span></div>
+                                <div><span class="label">📊 進捗</span> <span class="value" id="home-progress-info">---</span></div>
+                            </div>
+                            <div class="progress-display" id="home-progress-dots"></div>
+                            <button class="action-btn" id="btn-go-fishing">🎣 出漁！</button>
+                            <div class="encourage" id="home-encourage">今日もいい漁になりますように。</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 返回按钮已删除 -->
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== 测试面板 ===== -->
+    <div id="test-panel">
+        <div class="test-title">⚙️ テスト</div>
+        <button class="test-btn" id="test-next-day">次の日へ</button>
+        <button class="test-btn" id="test-correct-answer">正解を選択</button>
+        <button class="test-btn danger" id="test-reset">リセット</button>
+        <button class="test-btn" id="test-go-home">🏠 家に帰る</button>
+    </div>
+
+    <script src="js/main.js"></script>
+
+</body>
+
+</html>
+

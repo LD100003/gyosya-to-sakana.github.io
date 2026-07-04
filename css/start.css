@@ -1,0 +1,169 @@
+/* 全局重置，页面占满视口，无滚动 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    /* 禁止滚动条 */
+    font-family: 'DotGothic16', 'Press Start 2P', monospace;
+}
+
+body {
+    background-image: url('../images/bg_ocean.jpg');
+    /* 海洋背景图 */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    /* 确保背景覆盖全屏 */
+    position: relative;
+}
+
+/* ---------- 左上角标题图片占位 ---------- */
+.title-placeholder {
+    position: absolute;
+    top: 30px;
+    left: 30px;
+    width: 220px;
+    height: 120px;
+    /* 占位虚线框，方便您替换为实际图片 */
+    border: 3px dashed rgba(255, 255, 255, 0.7);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 18px;
+    background: rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(2px);
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+    z-index: 5;
+    /* 您可以在此放置 <img> 标签替换占位内容 */
+    user-select: none;
+    transition: opacity 0.5s ease;
+}
+
+/* ---------- 左下角开始按钮（深蓝色半透明风格） ---------- */
+.start-btn {
+    position: fixed;
+    bottom: 50px;
+    left: 50px;
+    padding: 18px 48px;
+    /* 深蓝色半透明背景 + 毛玻璃效果 */
+    background: rgba(8, 28, 68, 0.75);
+    backdrop-filter: blur(4px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 16px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #ffffff;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.6);
+    cursor: pointer;
+    z-index: 5;
+    transition: transform 0.2s, background 0.2s, opacity 0.5s ease;
+    font-family: inherit;
+    letter-spacing: 2px;
+}
+
+.start-btn:hover {
+    transform: scale(1.04);
+    background: rgba(20, 50, 100, 0.85);
+    border-color: rgba(255, 255, 255, 0.5);
+}
+
+.start-btn:active {
+    transform: scale(0.96);
+}
+
+/* ---------- 视频容器 ---------- */
+.video-wrapper {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    display: none;
+    /* 初始隐藏 */
+    /* 修改背景色：深蓝黑色（消除纯黑带来的突兀感） */
+    background: #0a1e30;
+    justify-content: center;
+    align-items: center;
+}
+
+.video-wrapper video {
+    width: 100%;
+    height: 100%;
+    /* 改为 cover，铺满全屏不留黑边 */
+    object-fit: cover;
+    display: block;
+    background: #0a1e30;
+}
+
+/* ---------- 跳过层（覆盖全屏，点击即跳过） ---------- */
+.skip-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 20;
+    /* 覆盖在视频上方 */
+    display: none;
+    /* 初始隐藏 */
+    cursor: pointer;
+    /* 完全透明，仅用于捕获点击事件 */
+    background: transparent;
+}
+
+/* 可选：在跳过层上添加提示文字（半透明） */
+.skip-overlay::after {
+    content: "点击任意处跳过 ▶";
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 18px;
+    background: rgba(0, 0, 0, 0.4);
+    padding: 10px 20px;
+    border-radius: 30px;
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    pointer-events: none;
+    /* 使文字不干扰点击穿透 */
+}
+
+/* 隐藏元素工具类 */
+.hidden {
+    display: none !important;
+}
+
+/* 简单响应式 */
+@media (max-width: 600px) {
+    .title-placeholder {
+        width: 150px;
+        height: 80px;
+        font-size: 14px;
+        top: 20px;
+        left: 20px;
+    }
+
+    .start-btn {
+        font-size: 20px;
+        padding: 14px 32px;
+        bottom: 30px;
+        left: 30px;
+    }
+
+    .skip-overlay::after {
+        font-size: 14px;
+        padding: 6px 14px;
+        bottom: 20px;
+        right: 20px;
+    }
+}
