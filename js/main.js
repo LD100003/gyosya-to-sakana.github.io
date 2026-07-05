@@ -40,7 +40,84 @@ async function loadFishData() {
 }
 
 // ================================================================
-//  2. 星期・天气・难度设定
+//  2. 音频管理器（单例模式）
+// ================================================================
+
+/**
+ * 音频管理器，统一管理所有音效和背景音乐
+ * 
+ * 使用方式：
+ *   - 播放音效: AudioManager.playSe('correct') 或 AudioManager.playSe('wrong')
+ *   - 播放BGM: AudioManager.playBgm('ocean')
+ *   - 停止BGM: AudioManager.stopBgm()
+ * 
+ * 音频文件路径: audio/
+ *   - bgm_ocean.mp3    : 游戏界面背景音乐
+ *   - se_open_door.mp3 : 进入家页面的开门音效
+ *   - se_correct.mp3   : 答对题目音效
+ *   - se_wrong.mp3     : 答错题目音效
+ */
+const AudioManager = {
+    bgm: null,
+    bgmVolume: 0.3,
+    seVolume: 0.6,
+
+    init() {
+        this.bgm = new Audio();
+        this.bgm.loop = true;
+        this.bgm.volume = this.bgmVolume;
+    },
+
+    playSe(type) {
+        const sePaths = {
+            correct: 'audio/se_correct.mp3',
+            wrong: 'audio/se_wrong.mp3',
+            open_door: 'audio/se_open_door.mp3'
+        };
+        if (!sePaths[type]) return;
+
+        const se = new Audio(sePaths[type]);
+        se.volume = this.seVolume;
+        se.play().catch(err => {
+            console.warn('音效播放失败:', type, err);
+        });
+    },
+
+    playBgm(type) {
+        const bgmPaths = {
+            ocean: 'audio/bgm_ocean.mp3'
+        };
+        if (!bgmPaths[type]) return;
+
+        if (this.bgm && this.bgm.src && !this.bgm.paused) {
+            this.bgm.pause();
+        }
+
+        this.bgm.src = bgmPaths[type];
+        this.bgm.play().catch(err => {
+            console.warn('BGM播放失败（可能需要用户交互）:', err);
+        });
+    },
+
+    stopBgm() {
+        if (this.bgm) {
+            this.bgm.pause();
+            this.bgm.currentTime = 0;
+        }
+    },
+
+    setBgmVolume(volume) {
+        this.bgmVolume = volume;
+        if (this.bgm) this.bgm.volume = volume;
+    },
+
+    setSeVolume(volume) {
+        this.seVolume = volume;
+    }
+};
+
+// ================================================================
+//  3. 星期・天气・难度设定
 // ================================================================
 
 /** 星期名称列表 */
@@ -477,6 +554,7 @@ function handleAnswer(index) {
 
     const fish = GameState.trip.fishData;
     if (correct) {
+        AudioManager.playSe('correct');
         GameState.quiz.correctCount++;
         GameState.player.currentCombo++;
         GameState.player.totalCorrect++;
@@ -489,6 +567,7 @@ function handleAnswer(index) {
         setFishDialogue(fish.personality.tauntCorrect);
         setPlayerDialogue(`「よし！正解！ +${reward} スコア」`);
     } else {
+        AudioManager.playSe('wrong');
         GameState.player.currentCombo = 0;
         GameState.player.totalWrong++;
         setFishDialogue(fish.personality.tauntWrong);
@@ -638,6 +717,9 @@ async function startNewDay() {
 
     await showDiary();
 
+    // 进入游戏场景，播放背景音乐
+    AudioManager.playBgm('ocean');
+
     setPlayerDialogue(`「${getDayName(GameState.dayIndex)}、${GameState.weather}。${GameState.dailyTarget}匹、やるぞ。」`);
     setNextButton(true, '🎣 次の一投');
     GameState.flow.state = 'idle';
@@ -682,6 +764,8 @@ function startGameFromHome() {
         setNextButton(true, '🎣 次の一投');
         setPlayerDialogue(`「${getDayName(GameState.dayIndex)}の漁を続ける。」`);
         GameState.flow.state = 'idle';
+        // 返回游戏场景，播放背景音乐
+        AudioManager.playBgm('ocean');
     }
 }
 
@@ -732,6 +816,11 @@ function setBodyBackground(isHome) {
 
 /** 显示主页 */
 function showHome() {
+    // 停止游戏背景音乐（家页面无BGM）
+    AudioManager.stopBgm();
+    // 播放开门音效
+    AudioManager.playSe('open_door');
+
     setBodyBackground(true);
     GameState.isHomeVisible = true;
     DOM.homeContainer.classList.add('active');
@@ -958,6 +1047,9 @@ function bindEvents() {
 window.addEventListener('DOMContentLoaded', async () => {
     // 先异步加载鱼数据，再初始化游戏
     await loadFishData();
+
+    // 初始化音频管理器
+    AudioManager.init();
 
     // 初始状态：重置游戏数据，但显示主页
     resetGame();

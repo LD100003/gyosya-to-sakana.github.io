@@ -31,9 +31,6 @@ body {
     left: 30px;
     width: 220px;
     height: 120px;
-    /* 占位虚线框，方便您替换为实际图片 */
-    border: 3px dashed rgba(255, 255, 255, 0.7);
-    border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -43,9 +40,6 @@ body {
     backdrop-filter: blur(2px);
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
     z-index: 5;
-    /* 您可以在此放置 <img> 标签替换占位内容 */
-    user-select: none;
-    transition: opacity 0.5s ease;
 }
 
 /* ---------- 左下角开始按钮（深蓝色半透明风格） ---------- */
@@ -123,7 +117,7 @@ body {
 
 /* 可选：在跳过层上添加提示文字（半透明） */
 .skip-overlay::after {
-    content: "点击任意处跳过 ▶";
+    content: "クリックでスキップ ▶";
     position: absolute;
     bottom: 40px;
     right: 40px;
