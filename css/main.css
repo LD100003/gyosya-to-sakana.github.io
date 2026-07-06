@@ -1,4 +1,4 @@
-﻿/* ================================================================
+/* ================================================================
               样式表（整体视觉效果）
               ================================================================ */
 
@@ -128,6 +128,27 @@
         #combo-count.highlight {
             color: var(--combo-highlight);
             animation: pulse 0.5s infinite alternate;
+        }
+
+        #timer-display {
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        #timer-display #timer-value {
+            font-size: calc(var(--font-hud) + 2px);
+            min-width: 40px;
+            text-align: center;
+        }
+
+        #timer-display #timer-value.danger {
+            color: #ff5252;
+            animation: timerPulse 0.5s infinite alternate;
+        }
+
+        @keyframes timerPulse {
+            from { opacity: 1; }
+            to { opacity: 0.5; }
         }
 
         @keyframes pulse {

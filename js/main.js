@@ -179,7 +179,10 @@ const GameState = {
     // 流程控制
     flow: {
         state: 'idle', // idle | answering | feedback | result | dayEnd | gameOver | victory
-        pendingTimeout: null // setTimeout 句柄
+        pendingTimeout: null, // setTimeout 句柄
+        bossBattleActive: false, // 是否在BOSS战中
+        bossTimer: null, // BOSS战倒计时定时器
+        timeRemaining: 60 // BOSS战剩余时间（秒）
     },
     // 模态框控制
     modalResolve: null,
@@ -196,6 +199,8 @@ const DOM = {
     comboCount: document.getElementById('combo-count'),
     scoreCount: document.getElementById('score-count'),
     dayCount: document.getElementById('day-count'),
+    timerDisplay: document.getElementById('timer-display'),
+    timerValue: document.getElementById('timer-value'),
     fishDisplay: document.getElementById('fish-display'),
     fishSprite: document.getElementById('fish-sprite'),
     fishBubble: document.getElementById('fish-bubble'),
@@ -588,13 +593,154 @@ function proceedAfterAnswer() {
     const config = getDayConfig(GameState.dayIndex);
     const required = config.requiredCorrect;
 
-    if (correctCount >= required) {
-        handleCatchSuccess();
-    } else if (currentIndex < questions.length) {
-        showNextQuestion();
+    if (GameState.flow.bossBattleActive) {
+        handleBossBattleProceed();
     } else {
-        handleCatchFail();
+        if (correctCount >= required) {
+            handleCatchSuccess();
+        } else if (currentIndex < questions.length) {
+            showNextQuestion();
+        } else {
+            handleCatchFail();
+        }
     }
+}
+
+/** BOSS战答题后的处理 */
+function handleBossBattleProceed() {
+    const { currentIndex, questions, correctCount } = GameState.quiz;
+    // BOSS战规则：答对7题胜利，答完10题但不够7题失败，时间到失败
+    if (correctCount >= 7) {
+        handleBossBattleSuccess();
+    } else if (currentIndex >= questions.length) {
+        handleBossBattleFail();
+    } else {
+        showNextQuestion();
+    }
+}
+
+/** 开始BOSS战 */
+function startBossBattle() {
+    // 设置BOSS战状态
+    GameState.flow.bossBattleActive = true;
+    GameState.flow.timeRemaining = 60; // 60秒限时
+    
+    // 设置当前鱼为BOSS
+    GameState.trip.fishData = { ...BOSS_FISH, questions: [...BOSS_FISH.questions] };
+    
+    // 从BOSS的问题池中随机抽取10题
+    const pool = [...BOSS_FISH.questions];
+    shuffle(pool);
+    GameState.quiz.questions = pool.slice(0, 10);
+    GameState.quiz.currentIndex = 0;
+    GameState.quiz.correctCount = 0;
+    
+    // 显示BOSS
+    showFish(GameState.trip.fishData);
+    
+    // 启动倒计时
+    startBossTimer();
+    
+    // 显示第一题
+    showNextQuestion();
+}
+
+/** 启动BOSS战倒计时 */
+function startBossTimer() {
+    // 清除之前的定时器
+    if (GameState.flow.bossTimer) {
+        clearInterval(GameState.flow.bossTimer);
+    }
+    
+    // 更新初始时间显示
+    updateTimerUI();
+    
+    // 每秒更新一次
+    GameState.flow.bossTimer = setInterval(() => {
+        GameState.flow.timeRemaining--;
+        updateTimerUI();
+        
+        // 时间到，BOSS战失败
+        if (GameState.flow.timeRemaining <= 0) {
+            handleBossBattleFail();
+        }
+    }, 1000);
+}
+
+/** 更新计时器UI显示 */
+function updateTimerUI() {
+    if (!DOM.timerDisplay || !DOM.timerValue) return;
+    
+    const seconds = GameState.flow.timeRemaining;
+    const minutes = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    const timeStr = `${minutes}:${secs.toString().padStart(2, '0')}`;
+    
+    // 更新时间值显示
+    DOM.timerValue.textContent = timeStr;
+    
+    // 时间少于10秒时显示红色警告
+    if (seconds <= 10) {
+        DOM.timerValue.classList.add('danger');
+    } else {
+        DOM.timerValue.classList.remove('danger');
+    }
+    
+    // BOSS战时显示计时器，平时隐藏
+    if (GameState.flow.bossBattleActive) {
+        DOM.timerDisplay.style.display = 'flex';
+    } else {
+        DOM.timerDisplay.style.display = 'none';
+    }
+}
+
+/** BOSS战胜利 */
+async function handleBossBattleSuccess() {
+    // 清除定时器
+    if (GameState.flow.bossTimer) {
+        clearInterval(GameState.flow.bossTimer);
+        GameState.flow.bossTimer = null;
+    }
+    
+    GameState.flow.bossBattleActive = false;
+    GameState.bossDefeated = true;
+    
+    // 更新UI
+    updateTimerUI();
+    hideFish();
+    
+    // 显示胜利模态框
+    await showModal('🏆', '🎉 伝説の龍魚を討ち取った！',
+        `全ての日程を完了した！<br>最終スコア: <span class="highlight">${GameState.player.score}</span>`,
+        'おめでとう！', 'success');
+    
+    // 重置游戏并返回主页
+    resetGame();
+    showHome();
+}
+
+/** BOSS战失败 */
+async function handleBossBattleFail() {
+    // 清除定时器
+    if (GameState.flow.bossTimer) {
+        clearInterval(GameState.flow.bossTimer);
+        GameState.flow.bossTimer = null;
+    }
+    
+    GameState.flow.bossBattleActive = false;
+    
+    // 更新UI
+    updateTimerUI();
+    hideFish();
+    
+    // 显示失败模态框，提示需要重新挑战
+    await showModal('💀', '敗北…',
+        '龍魚の力は想像を超えていた…<br>再び7日間の修行を積め。',
+        '最初から', 'danger');
+    
+    // 重置游戏到第1天（模态框确认后执行）
+    resetGame();
+    showHome();
 }
 
 /** 显示下一题 */
@@ -720,9 +866,15 @@ async function startNewDay() {
     // 进入游戏场景，播放背景音乐
     AudioManager.playBgm('ocean');
 
-    setPlayerDialogue(`「${getDayName(GameState.dayIndex)}、${GameState.weather}。${GameState.dailyTarget}匹、やるぞ。」`);
-    setNextButton(true, '🎣 次の一投');
-    GameState.flow.state = 'idle';
+    if (GameState.isBossDay) {
+        // BOSS日：直接开始BOSS战
+        startBossBattle();
+    } else {
+        // 普通日：显示钓鱼按钮
+        setPlayerDialogue(`「${getDayName(GameState.dayIndex)}、${GameState.weather}。${GameState.dailyTarget}匹、やるぞ。」`);
+        setNextButton(true, '🎣 次の一投');
+        GameState.flow.state = 'idle';
+    }
 }
 
 /** 重置游戏（保留在主页显示） */
